@@ -3,11 +3,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Eye, EyeOff } from 'lucide-react'
 import { API_ENDPOINTS } from '@/lib/api-config'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -94,13 +96,25 @@ export default function LoginPage() {
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm pr-10"
                 placeholder="Password"
               />
+              <button
+                type="button"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center z-20"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                )}
+              </button>
+
             </div>
           </div>
 
