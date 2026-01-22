@@ -180,3 +180,4 @@ Thumbs.db
 # Project Specific
 logs/
 fonts/*.ttf
+.env*.local
