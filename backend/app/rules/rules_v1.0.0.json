@@ -1,0 +1,512 @@
+{
+  "version": "1.0.0",
+  "source": "DGHS",
+  "updated_date": "2024-01-01",
+  "rules": [
+    {
+      "id": "RBC-001",
+      "component": "RBC",
+      "priority": 100,
+      "conditions": {
+        "active_bleeding": false,
+        "setting": ["ward"],
+        "hb_max": 7.0,
+        "history_flags": {
+          "cad": false,
+          "pregnancy": false
+        }
+      },
+      "output": {
+        "dose_text": "1 unit RBC (350 mL)",
+        "expected_increment": "+1 g/dL Hb (with uncertainty: ±0.5 g/dL)",
+        "recheck_plan": "Recheck Hb 4-6 hours post-transfusion",
+        "why": [
+          "Hb < 7.0 g/dL in stable non-bleeding patient",
+          "No active CAD or ischemic risk factors",
+          "Staged transfusion preferred over multiple units"
+        ],
+        "warnings": [
+          "Monitor for TACO risk (age >70, CHF, CKD, low albumin)",
+          "Confirm local hospital policy before proceeding"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "RBC-002",
+      "component": "RBC",
+      "priority": 110,
+      "conditions": {
+        "active_bleeding": false,
+        "setting": ["icu", "or"],
+        "hb_max": 8.0
+      },
+      "output": {
+        "dose_text": "1 unit RBC (350 mL)",
+        "expected_increment": "+1 g/dL Hb (with uncertainty: ±0.5 g/dL)",
+        "recheck_plan": "Recheck Hb 2-4 hours post-transfusion in ICU/OR setting",
+        "why": [
+          "Hb < 8.0 g/dL in ICU/OR setting",
+          "Higher threshold for critical care patients"
+        ],
+        "warnings": [
+          "Monitor for TACO risk",
+          "Confirm local hospital policy"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "RBC-HEMODYNAMIC",
+      "component": "RBC",
+      "priority": 115,
+      "conditions": {
+        "active_bleeding": false,
+        "hemodynamic_instability": true,
+        "hb_max": 9.0
+      },
+      "output": {
+        "dose_text": "1 unit RBC (350 mL)",
+        "expected_increment": "+1 g/dL Hb (with uncertainty: ±0.5 g/dL)",
+        "recheck_plan": "Recheck Hb 2-4 hours post-transfusion. Monitor hemodynamic status.",
+        "why": [
+          "Hb < 9.0 g/dL with hemodynamic instability",
+          "Higher threshold for hemodynamically unstable patients",
+          "Consider ICU monitoring"
+        ],
+        "warnings": [
+          "Hemodynamic instability present - monitor closely",
+          "Monitor for TACO risk",
+          "Consider ICU transfer if not already in ICU",
+          "Confirm local hospital policy"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "RBC-003",
+      "component": "RBC",
+      "priority": 120,
+      "conditions": {
+        "active_bleeding": false,
+        "hb_max": 8.0,
+        "history_flags": {
+          "cad": true
+        }
+      },
+      "output": {
+        "dose_text": "1 unit RBC (350 mL)",
+        "expected_increment": "+1 g/dL Hb (with uncertainty: ±0.5 g/dL)",
+        "recheck_plan": "Recheck Hb 2-4 hours post-transfusion",
+        "why": [
+          "Hb < 8.0 g/dL with known CAD",
+          "Higher threshold for ischemic risk"
+        ],
+        "warnings": [
+          "Monitor for TACO risk (especially with CAD)",
+          "Confirm local hospital policy"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "RBC-BLEEDING",
+      "component": "RBC",
+      "priority": 140,
+      "conditions": {
+        "active_bleeding": true,
+        "hb_max": 10.0
+      },
+      "output": {
+        "dose_text": "1-2 units RBC (350 mL each)",
+        "expected_increment": "+1-2 g/dL Hb per unit (with uncertainty: ±0.5 g/dL)",
+        "recheck_plan": "Recheck Hb 2-4 hours post-transfusion. Monitor for ongoing bleeding.",
+        "why": [
+          "Active bleeding present",
+          "Hb < 10.0 g/dL with active bleeding",
+          "May require multiple units if bleeding continues",
+          "Consider MTP protocol if massive bleeding"
+        ],
+        "warnings": [
+          "Monitor for ongoing bleeding",
+          "Consider MTP protocol if massive hemorrhage",
+          "Monitor for TACO risk",
+          "Confirm local hospital policy",
+          "Consider ICU monitoring if hemodynamically unstable"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "RBC-004",
+      "component": "RBC",
+      "priority": 130,
+      "conditions": {
+        "active_bleeding": false,
+        "hb_max": 10.0,
+        "history_flags": {
+          "pregnancy": true
+        }
+      },
+      "output": {
+        "dose_text": "1 unit RBC (350 mL)",
+        "expected_increment": "+1 g/dL Hb (with uncertainty: ±0.5 g/dL)",
+        "recheck_plan": "Recheck Hb 2-4 hours post-transfusion",
+        "why": [
+          "Hb < 10.0 g/dL in pregnancy",
+          "Higher threshold for obstetric patients"
+        ],
+        "warnings": [
+          "Monitor for TACO risk",
+          "Confirm local hospital policy",
+          "Consider fetal monitoring if applicable"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "PLT-001",
+      "component": "Platelet",
+      "priority": 100,
+      "conditions": {
+        "active_bleeding": false,
+        "platelets_max": 10.0,
+        "history_flags": {
+          "dengue": false
+        }
+      },
+      "output": {
+        "dose_text": "1 unit random pool platelets",
+        "expected_increment": "+20-40 ×10⁹/L (with uncertainty: ±10 ×10⁹/L)",
+        "recheck_plan": "Recheck platelets 1 hour post-transfusion",
+        "why": [
+          "Platelets < 10 ×10⁹/L for prophylaxis",
+          "Prevent spontaneous bleeding"
+        ],
+        "warnings": [
+          "Dengue: No prophylactic transfusion without bleeding",
+          "Confirm local hospital policy"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "PLT-002",
+      "component": "Platelet",
+      "priority": 110,
+      "conditions": {
+        "active_bleeding": true,
+        "platelets_max": 50.0
+      },
+      "output": {
+        "dose_text": "1 unit random pool platelets",
+        "expected_increment": "+20-40 ×10⁹/L (with uncertainty: ±10 ×10⁹/L)",
+        "recheck_plan": "Recheck platelets 1 hour post-transfusion",
+        "why": [
+          "Active bleeding with platelets < 50 ×10⁹/L",
+          "Support hemostasis"
+        ],
+        "warnings": [
+          "Confirm local hospital policy",
+          "Monitor for bleeding response"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "PLT-003",
+      "component": "Platelet",
+      "priority": 120,
+      "conditions": {
+        "active_bleeding": false,
+        "platelets_max": 50.0,
+        "procedure_risk": ["high"],
+        "procedure_timing_hours": 24.0
+      },
+      "output": {
+        "dose_text": "1 unit random pool platelets",
+        "expected_increment": "+20-40 ×10⁹/L (with uncertainty: ±10 ×10⁹/L)",
+        "recheck_plan": "Recheck platelets 1 hour post-transfusion, then pre-procedure",
+        "why": [
+          "Platelets < 50 ×10⁹/L for high-risk procedure",
+          "Pre-procedure threshold"
+        ],
+        "warnings": [
+          "Confirm local hospital policy",
+          "Time transfusion close to procedure"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "PLT-DENGUE-CONTRA",
+      "component": "Platelet",
+      "action": "contraindicate",
+      "priority": 95,
+      "exclusive_group": "platelets-dengue",
+      "conditions": {
+        "active_bleeding": false,
+        "platelets_max": 50.0,
+        "history_flags": {
+          "dengue": true
+        }
+      },
+      "output": {
+        "dose_text": "DO NOT transfuse platelets",
+        "expected_increment": "N/A",
+        "recheck_plan": "Monitor platelets and clinical status. Transfuse only if active bleeding occurs.",
+        "why": [
+          "Dengue without active bleeding: platelet transfusion contraindicated",
+          "Risk of fluid overload and worsening thrombocytopenia",
+          "Spontaneous recovery expected in 48-72 hours",
+          "Evidence shows no benefit and potential harm"
+        ],
+        "warnings": [
+          "Only consider transfusion if life-threatening bleeding occurs",
+          "Consult hematologist before overriding",
+          "Monitor closely for bleeding signs"
+        ],
+        "references": [
+          "WHO Dengue Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "PLT-BLEEDING-OVERRIDE",
+      "component": "Platelet",
+      "priority": 110,
+      "exclusive_group": "platelets-dengue",
+      "override_conditions": {
+        "override_rule_ids": ["PLT-DENGUE-CONTRA"],
+        "when": {
+          "active_bleeding": true
+        }
+      },
+      "conditions": {
+        "active_bleeding": true,
+        "platelets_max": 50.0
+      },
+      "output": {
+        "dose_text": "1 unit random pool platelets",
+        "expected_increment": "+20-40 ×10⁹/L (with uncertainty: ±10 ×10⁹/L)",
+        "recheck_plan": "Recheck platelets 1 hour post-transfusion",
+        "why": [
+          "Active bleeding overrides dengue contraindication",
+          "Platelets < 50 ×10⁹/L with active bleeding",
+          "Support hemostasis required"
+        ],
+        "warnings": [
+          "Confirm local hospital policy",
+          "Monitor for bleeding response",
+          "Note: Overriding dengue contraindication due to active bleeding"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024",
+          "WHO Dengue Guidelines 2023"
+        ]
+      }
+    },
+    {
+      "id": "FFP-001",
+      "component": "FFP",
+      "priority": 100,
+      "conditions": {
+        "active_bleeding": true,
+        "inr_min": 1.5
+      },
+      "output": {
+        "dose_text": "10-15 mL/kg FFP",
+        "expected_increment": "INR reduction by 0.3-0.5 (recheck 30-60 min post-infusion)",
+        "recheck_plan": "Recheck INR 30-60 minutes post-infusion",
+        "why": [
+          "INR ≥ 1.5 with active bleeding",
+          "FFP indicated for bleeding with coagulopathy"
+        ],
+        "warnings": [
+          "Do NOT use for prophylactic INR correction without bleeding",
+          "Confirm local hospital policy",
+          "Monitor for TACO risk"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "FFP-002",
+      "component": "FFP",
+      "priority": 110,
+      "conditions": {
+        "active_bleeding": false,
+        "inr_min": 1.5,
+        "procedure_risk": ["high"]
+      },
+      "output": {
+        "dose_text": "10-15 mL/kg FFP",
+        "expected_increment": "INR reduction by 0.3-0.5 (recheck 30-60 min post-infusion)",
+        "recheck_plan": "Recheck INR 30-60 minutes post-infusion, then pre-procedure",
+        "why": [
+          "INR ≥ 1.5 for urgent high-risk procedure",
+          "Pre-procedure correction indicated"
+        ],
+        "warnings": [
+          "Only for urgent high-risk procedures",
+          "Do NOT use for routine prophylactic correction",
+          "Confirm local hospital policy"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "FFP-NO-BLEED-CONTRA",
+      "component": "FFP",
+      "action": "contraindicate",
+      "priority": 95,
+      "exclusive_group": "ffp-prophylaxis",
+      "conditions": {
+        "active_bleeding": false,
+        "inr_min": 1.5,
+        "procedure_risk": ["low", "medium"]
+      },
+      "output": {
+        "dose_text": "DO NOT transfuse FFP",
+        "expected_increment": "N/A",
+        "recheck_plan": "Monitor INR. Transfuse only if bleeding occurs or procedure becomes urgent.",
+        "why": [
+          "INR ≥ 1.5 but no active bleeding and non-urgent procedure",
+          "Prophylactic INR correction without bleeding is not recommended",
+          "Evidence shows no benefit for prophylactic correction",
+          "Transfusion risk outweighs benefit in stable patients"
+        ],
+        "warnings": [
+          "Transfuse only if bleeding occurs",
+          "Reassess if procedure becomes urgent",
+          "Do NOT use for routine prophylactic INR correction"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "CRYO-001",
+      "component": "Cryo",
+      "priority": 100,
+      "conditions": {
+        "active_bleeding": true,
+        "fibrinogen_max": 150.0
+      },
+      "output": {
+        "dose_text": "10 units cryoprecipitate",
+        "expected_increment": "+70-100 mg/dL fibrinogen (with uncertainty: ±20 mg/dL)",
+        "recheck_plan": "Recheck fibrinogen 1 hour post-infusion",
+        "why": [
+          "Fibrinogen < 150 mg/dL with active bleeding",
+          "Cryoprecipitate indicated for hypofibrinogenemia"
+        ],
+        "warnings": [
+          "Confirm local hospital policy",
+          "Monitor for bleeding response"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "CRYO-002",
+      "component": "Cryo",
+      "priority": 110,
+      "conditions": {
+        "active_bleeding": true,
+        "fibrinogen_max": 200.0,
+        "history_flags": {
+          "pregnancy": true
+        }
+      },
+      "output": {
+        "dose_text": "10 units cryoprecipitate",
+        "expected_increment": "+70-100 mg/dL fibrinogen (with uncertainty: ±20 mg/dL)",
+        "recheck_plan": "Recheck fibrinogen 1 hour post-infusion. Target ≥200-300 mg/dL for OB.",
+        "why": [
+          "Fibrinogen < 200 mg/dL with obstetric hemorrhage",
+          "Higher fibrinogen target for obstetric patients"
+        ],
+        "warnings": [
+          "Target fibrinogen ≥200-300 mg/dL for obstetric hemorrhage",
+          "Confirm local hospital policy",
+          "Consider fetal monitoring if applicable"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    },
+    {
+      "id": "NONE-001",
+      "component": "None",
+      "priority": 50,
+      "conditions": {
+        "hb_min": 7.0,
+        "platelets_min": 10.0,
+        "inr_max": 1.5,
+        "fibrinogen_min": 150.0,
+        "active_bleeding": false
+      },
+      "output": {
+        "dose_text": "No transfusion recommended",
+        "expected_increment": "N/A",
+        "recheck_plan": "Continue monitoring. Reassess if clinical status changes.",
+        "why": [
+          "All parameters within acceptable ranges",
+          "No active bleeding",
+          "Conservative approach preferred when safe"
+        ],
+        "warnings": [
+          "Reassess if bleeding occurs or parameters worsen",
+          "Confirm with clinical judgment"
+        ],
+        "references": [
+          "AABB Guidelines 2023",
+          "DGHS Transfusion Policy 2024"
+        ]
+      }
+    }
+  ]
+}

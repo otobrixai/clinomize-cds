@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Transfusion Rules Schema",
+  "type": "object",
+  "required": ["version", "rules"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Semantic version of the rules (e.g., '1.0.0')"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source organization (WHO, AABB, BSH, DGHS)"
+    },
+    "updated_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "component", "priority", "conditions", "output"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique rule identifier (e.g., 'RBC-001')"
+          },
+          "component": {
+            "type": "string",
+            "enum": ["RBC", "Platelet", "FFP", "Cryo", "Whole Blood", "None"],
+            "description": "Blood component this rule applies to"
+          },
+          "action": {
+            "type": "string",
+            "enum": ["recommend", "contraindicate"],
+            "default": "recommend",
+            "description": "Whether to recommend or contraindicate transfusion"
+          },
+          "priority": {
+            "type": "integer",
+            "description": "Higher priority rules evaluated first"
+          },
+          "exclusive_group": {
+            "type": "string",
+            "description": "Rules in same group cannot both fire (mutually exclusive)"
+          },
+          "override_conditions": {
+            "type": "object",
+            "description": "Conditions under which this rule overrides others",
+            "properties": {
+              "override_rule_ids": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "List of rule IDs this rule can override"
+              },
+              "when": {
+                "type": "object",
+                "description": "Conditions for override (e.g., {'active_bleeding': true})"
+              }
+            }
+          },
+          "conditions": {
+            "type": "object",
+            "description": "Conditions that must be met for rule to apply",
+            "properties": {
+              "age_min_years": {"type": "number"},
+              "age_max_years": {"type": "number"},
+              "setting": {
+                "type": "array",
+                "items": {"type": "string", "enum": ["icu", "or", "er", "ward"]}
+              },
+              "active_bleeding": {"type": "boolean"},
+              "hb_min": {"type": "number"},
+              "hb_max": {"type": "number"},
+              "platelets_min": {"type": "number"},
+              "platelets_max": {"type": "number"},
+              "inr_min": {"type": "number"},
+              "inr_max": {"type": "number"},
+              "fibrinogen_min": {"type": "number"},
+              "fibrinogen_max": {"type": "number"},
+              "history_flags": {
+                "type": "object",
+                "properties": {
+                  "cad": {"type": "boolean"},
+                  "liver_disease": {"type": "boolean"},
+                  "renal_failure": {"type": "boolean"},
+                  "chemotherapy": {"type": "boolean"},
+                  "dengue": {"type": "boolean"},
+                  "pregnancy": {"type": "boolean"}
+                }
+              },
+              "procedure_risk": {
+                "type": "array",
+                "items": {"type": "string", "enum": ["low", "medium", "high"]}
+              }
+            }
+          },
+          "output": {
+            "type": "object",
+            "required": ["dose_text", "expected_increment", "recheck_plan", "why", "warnings", "references"],
+            "properties": {
+              "dose_text": {"type": "string"},
+              "expected_increment": {"type": "string"},
+              "recheck_plan": {"type": "string"},
+              "why": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "warnings": {
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "references": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,329 @@
+{
+  "TransfusionIQ API Specification": {
+    "version": "1.0.0",
+    "description": "Blood Transfusion CDS with Hospital Analytics",
+    "base_url": "http://localhost:8000/api/v1",
+    "authentication": "JWT Bearer Token",
+    
+    "user_roles": {
+      "doctor": "Clinical users - can use CDS tool only",
+      "hospital_admin": "Hospital administrators - can view analytics and manage hospital users",
+      "super_admin": "System administrators - full access",
+      "admin": "Legacy admin role"
+    },
+    
+    "database_schema": {
+      "tables": [
+        {
+          "name": "users",
+          "columns": [
+            "id (PK)", "email", "hashed_password", "full_name", "role", 
+            "hospital_id (FK)", "is_active", "created_at", "updated_at", 
+            "last_login", "created_by", "updated_by", "deleted_at", "deleted_by", "version"
+          ],
+          "relationships": "hospital (many-to-one)"
+        },
+        {
+          "name": "hospitals", 
+          "columns": ["id", "name", "address", "city", "country", "is_active", "created_at", "updated_at", "created_by"],
+          "relationships": "users (one-to-many), blood_product_costs (one-to-many), analytics_summaries (one-to-many)"
+        },
+        {
+          "name": "recommendations",
+          "columns": [
+            "id", "encounter_id", "component", "dose_text", "units", "volume_ml", 
+            "expected_increment", "recheck_plan", "why (JSON)", "warnings (JSON)", 
+            "references (JSON)", "rule_ids (JSON)", "rule_version", "created_at",
+            "actual_transfusion_given", "components_given (JSON)", "post_transfusion_hb",
+            "post_transfusion_platelets", "outcome_recorded_at", "outcome_recorded_by",
+            "estimated_cost_bdt", "actual_cost_bdt"
+          ],
+          "relationships": "patient_encounter (many-to-one), user (outcome_recorded_by)"
+        },
+        {
+          "name": "analytics_monthly_summary",
+          "columns": [
+            "id", "hospital_id", "summary_date", "total_encounters", "total_recommendations",
+            "guideline_compliant", "total_overrides", "rbc_recommended", "rbc_actual",
+            "platelets_recommended", "platelets_actual", "ffp_recommended", "ffp_actual",
+            "cryo_recommended", "cryo_actual", "estimated_savings_bdt", "created_at", "updated_at"
+          ],
+          "relationships": "hospital (many-to-one)"
+        },
+        {
+          "name": "blood_product_cost",
+          "columns": ["id", "hospital_id", "component_type", "unit_cost_bdt", "units_per_bag", "is_active", "created_at", "updated_at"],
+          "relationships": "hospital (many-to-one)"
+        }
+      ]
+    },
+    
+    "endpoints": {
+      "authentication": {
+        "login": {
+          "method": "POST",
+          "path": "/auth/token",
+          "description": "Get JWT token",
+          "request_body": {
+            "username": "email@example.com",
+            "password": "password123"
+          },
+          "response": {
+            "access_token": "jwt_token_here",
+            "token_type": "bearer"
+          }
+        },
+        "get_current_user": {
+          "method": "GET",
+          "path": "/auth/me",
+          "description": "Get current user info",
+          "requires_auth": true,
+          "response_schema": "UserResponse"
+        }
+      },
+      
+      "recommendations": {
+        "evaluate_patient": {
+          "method": "POST",
+          "path": "/recommendations/evaluate",
+          "description": "Evaluate patient and get transfusion recommendations",
+          "requires_auth": true,
+          "request_schema": "PatientInput",
+          "response_schema": "RecommendationResponse"
+        }
+      },
+      
+      "analytics": {
+        "roi_summary": {
+          "method": "GET",
+          "path": "/analytics/roi-summary",
+          "description": "Get ROI summary for hospital (savings, compliance, usage)",
+          "requires_auth": true,
+          "required_role": ["hospital_admin", "super_admin"],
+          "query_params": {
+            "months": "Number of months to analyze (default: 6)"
+          },
+          "response_schema": "HospitalROIResponse"
+        },
+        "component_usage": {
+          "method": "GET",
+          "path": "/analytics/component-usage",
+          "description": "Get detailed blood component usage statistics",
+          "requires_auth": true,
+          "required_role": ["hospital_admin", "super_admin"]
+        }
+      },
+      
+      "hospital_admin": {
+        "list_users": {
+          "method": "GET",
+          "path": "/hospital-admin/users",
+          "description": "List all users in the hospital",
+          "requires_auth": true,
+          "required_role": ["hospital_admin", "super_admin"],
+          "response": "Array of UserResponse"
+        },
+        "create_user": {
+          "method": "POST",
+          "path": "/hospital-admin/users",
+          "description": "Create new user in the hospital",
+          "requires_auth": true,
+          "required_role": ["hospital_admin", "super_admin"],
+          "request_body": {
+            "email": "user@hospital.com",
+            "password": "password123",
+            "full_name": "User Name",
+            "role": "doctor or hospital_admin"
+          },
+          "response_schema": "UserResponse"
+        },
+        "deactivate_user": {
+          "method": "PUT",
+          "path": "/hospital-admin/users/{user_id}/deactivate",
+          "description": "Deactivate a user",
+          "requires_auth": true,
+          "required_role": ["hospital_admin", "super_admin"]
+        },
+        "activate_user": {
+          "method": "PUT",
+          "path": "/hospital-admin/users/{user_id}/activate",
+          "description": "Activate a deactivated user",
+          "requires_auth": true,
+          "required_role": ["hospital_admin", "super_admin"]
+        }
+      },
+      
+      "audit": {
+        "log_override": {
+          "method": "POST",
+          "path": "/audit/override",
+          "description": "Log when a clinician overrides a recommendation",
+          "requires_auth": true,
+          "request_schema": "OverrideRequest"
+        }
+      }
+    },
+    
+    "data_schemas": {
+      "PatientInput": {
+        "description": "Patient data for transfusion evaluation",
+        "fields": {
+          "age_years": "number (required)",
+          "weight_kg": "number (required)",
+          "sex": "string (M/F/Other, required)",
+          "setting": "string (ward/icu/ed/or, required)",
+          "hb_gdl": "number (hemoglobin)",
+          "platelets_x109l": "number (platelet count)",
+          "inr": "number (INR value)",
+          "fibrinogen_mgdl": "number (fibrinogen)",
+          "active_bleeding": "boolean (default: false)",
+          "hemodynamic_instability": "boolean (default: false)",
+          "history_flags": "object (clinical history)",
+          "component_availability": "object (available blood products)"
+        }
+      },
+      
+      "RecommendationResponse": {
+        "description": "Transfusion recommendation from CDS engine",
+        "fields": {
+          "encounter_id": "number",
+          "components": "array of ComponentRecommendation",
+          "rule_version": "string",
+          "created_at": "datetime"
+        }
+      },
+      
+      "ComponentRecommendation": {
+        "description": "Recommendation for a specific blood component",
+        "fields": {
+          "component": "string (RBC/FFP/Platelets/Cryo)",
+          "dose_text": "string (human-readable recommendation)",
+          "units": "number (recommended units)",
+          "volume_ml": "number (volume in ml)",
+          "expected_increment": "string (expected effect)",
+          "recheck_plan": "string (when to recheck)",
+          "why": "object (rationale)",
+          "warnings": "array of strings",
+          "references": "array of reference objects"
+        }
+      },
+      
+      "HospitalROIResponse": {
+        "description": "ROI and analytics data for hospital",
+        "fields": {
+          "hospital_id": "number",
+          "period_months": "number",
+          "total_encounters": "number",
+          "total_recommendations": "number",
+          "compliance_rate": "number (percentage)",
+          "estimated_total_savings_bdt": "number",
+          "estimated_monthly_savings_bdt": "number",
+          "component_usage": "object (usage by component)",
+          "monthly_trends": "array of monthly data"
+        }
+      },
+      
+      "UserResponse": {
+        "description": "User information",
+        "fields": {
+          "id": "number",
+          "email": "string",
+          "full_name": "string",
+          "role": "string (doctor/hospital_admin/super_admin/admin)",
+          "hospital_id": "number (nullable)",
+          "is_active": "boolean",
+          "created_at": "datetime (nullable)",
+          "updated_at": "datetime (nullable)",
+          "last_login": "datetime (nullable)"
+        }
+      }
+    },
+    
+    "business_rules": {
+      "recommendation_engine": {
+        "location": "app/rules/ (JSON files)",
+        "characteristics": "Deterministic, multi-component support, conflict resolution",
+        "ai_usage": "Never overrules clinical rules, admin-only feature"
+      },
+      "roi_calculation": {
+        "formula": "Savings = (Recommended_units - Actual_units) × Unit_cost",
+        "compliance": "Compliance_rate = (Guideline_compliant / Total_recommendations) × 100"
+      },
+      "permissions": {
+        "doctor": "Can only access own hospital's CDS tool",
+        "hospital_admin": "Can access analytics + user management for own hospital",
+        "super_admin": "Full system access across all hospitals"
+      }
+    },
+    
+    "frontend_structure": {
+      "nextjs_version": "14.0.4",
+      "router": "App Router",
+      "key_pages": {
+        "/": "Home (role-based redirect)",
+        "/login": "Login page",
+        "/clinician": "Doctor CDS interface (3-step form)",
+        "/hospital-admin": "Analytics dashboard",
+        "/hospital-admin/users": "User management",
+        "/super-admin/*": "Super admin pages"
+      },
+      "key_components": {
+        "MultiStepForm": "3-step patient input form",
+        "RecommendationCard": "Displays transfusion recommendations",
+        "ContextBadges": "Visual patient context indicators"
+      },
+      "state_management": "Zustand + React Context",
+      "styling": "Tailwind CSS"
+    },
+    
+    "deployment": {
+      "development": {
+        "database": "Local PostgreSQL",
+        "backend": "uvicorn app.main:app --reload (port 8000)",
+        "frontend": "npm run dev (port 3000)"
+      },
+      "production_recommended": {
+        "database": "Supabase",
+        "backend": "Vercel (FastAPI)",
+        "frontend": "Vercel (Next.js)"
+      }
+    },
+    
+    "development_workflow": {
+      "add_new_endpoint": [
+        "1. Create SQLAlchemy model in app/models/",
+        "2. Create Pydantic schema in app/schemas/",
+        "3. Create router in app/api/v1/",
+        "4. Add router to app/api/v1/__init__.py",
+        "5. Create migration: alembic revision -m 'description'",
+        "6. Run migration: alembic upgrade head"
+      ],
+      "add_new_frontend_page": [
+        "1. Create app/page-name/page.tsx",
+        "2. Add API endpoint to lib/api-config.ts",
+        "3. Add navigation in layout if needed",
+        "4. Update role permissions if required"
+      ]
+    },
+    
+    "testing_data": {
+      "hospital_admin": {
+        "email": "admin@testhospital.com",
+        "password": "password123",
+        "role": "hospital_admin"
+      },
+      "doctor": {
+        "email": "doctor@hospital.com",
+        "password": "password123",
+        "role": "doctor"
+      }
+    },
+    
+    "common_issues": {
+      "cors_errors": "Check CORS_ORIGINS in backend .env",
+      "database_errors": "Run alembic upgrade head",
+      "authentication": "Clear localStorage tokens",
+      "missing_data": "Check user hospital_id assignments"
+    }
+  }
+}

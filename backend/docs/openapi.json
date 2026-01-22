@@ -1,0 +1,3033 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Blood Transfusion CDS API",
+    "description": "Clinical Decision Support for Blood Transfusion Guidance",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/recommendations/evaluate": {
+      "post": {
+        "tags": [
+          "recommendations"
+        ],
+        "summary": "Evaluate Patient",
+        "description": "Evaluate patient data and return transfusion recommendation.\nRules engine is authoritative - AI never overrides.",
+        "operationId": "evaluate_patient_api_v1_recommendations_evaluate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PatientInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/recommendations/encounter/{encounter_id}": {
+      "get": {
+        "tags": [
+          "recommendations"
+        ],
+        "summary": "Get Recommendations For Encounter",
+        "description": "Get all recommendations for a specific encounter.",
+        "operationId": "get_recommendations_for_encounter_api_v1_recommendations_encounter__encounter_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "encounter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Encounter Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recommendations/{recommendation_id}": {
+      "get": {
+        "tags": [
+          "recommendations"
+        ],
+        "summary": "Get Recommendation",
+        "description": "Get a specific recommendation by ID (for backward compatibility).",
+        "operationId": "get_recommendation_api_v1_recommendations__recommendation_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "recommendation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Recommendation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/recommendations/{recommendation_id}/outcome": {
+      "post": {
+        "tags": [
+          "recommendations"
+        ],
+        "summary": "Record Outcome",
+        "description": "Record actual transfusion outcome (optional, for QA purposes).\n\nThis allows tracking whether recommendations were followed and\nwhat the actual outcomes were, which is valuable for quality\nimprovement and regulatory compliance.",
+        "operationId": "record_outcome_api_v1_recommendations__recommendation_id__outcome_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "recommendation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Recommendation Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutcomeUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rules": {
+      "get": {
+        "tags": [
+          "rules"
+        ],
+        "summary": "Get Rules",
+        "description": "Get current versioned rules.\n\nArgs:\n    version: Optional specific version (e.g., \"1.0.0\"). If not provided, returns latest.\n\nReturns:\n    Rules data with version information",
+        "operationId": "get_rules_api_v1_rules_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/rules/versions": {
+      "get": {
+        "tags": [
+          "rules"
+        ],
+        "summary": "List Rule Versions",
+        "description": "List all available rule versions.",
+        "operationId": "list_rule_versions_api_v1_rules_versions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/token": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login",
+        "operationId": "login_api_v1_auth_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_api_v1_auth_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register",
+        "operationId": "register_api_v1_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__api__v1__auth__UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__api__v1__auth__UserResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Get Current User Info",
+        "operationId": "get_current_user_info_api_v1_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__api__v1__auth__UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/analytics/blood-product-costs": {
+      "get": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Get Blood Product Costs",
+        "description": "Get blood product costs for a hospital.\nOnly hospital admins and super admins can access.",
+        "operationId": "get_blood_product_costs_api_v1_analytics_blood_product_costs_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hospital_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Hospital Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BloodProductCostResponse"
+                  },
+                  "title": "Response Get Blood Product Costs Api V1 Analytics Blood Product Costs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Create Blood Product Cost",
+        "description": "Create or update blood product cost for a hospital.\nOnly hospital admins and super admins can access.",
+        "operationId": "create_blood_product_cost_api_v1_analytics_blood_product_costs_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BloodProductCostCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BloodProductCostResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/roi-summary": {
+      "get": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Get Hospital Roi Summary",
+        "description": "Get ROI summary for a hospital (estimated savings, compliance, etc.)\nOnly hospital admins and super admins can access.",
+        "operationId": "get_hospital_roi_summary_api_v1_analytics_roi_summary_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hospital_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Hospital Id"
+            }
+          },
+          {
+            "name": "months",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 12,
+              "minimum": 1,
+              "description": "Number of months to analyze",
+              "default": 6,
+              "title": "Months"
+            },
+            "description": "Number of months to analyze"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HospitalROIResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/component-usage": {
+      "get": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Get Component Usage",
+        "description": "Get detailed component usage statistics.\nOnly hospital admins and super admins can access.",
+        "operationId": "get_component_usage_api_v1_analytics_component_usage_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hospital_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Hospital Id"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Start date (YYYY-MM-DD)",
+              "title": "Start Date"
+            },
+            "description": "Start date (YYYY-MM-DD)"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "End date (YYYY-MM-DD)",
+              "title": "End Date"
+            },
+            "description": "End date (YYYY-MM-DD)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComponentUsageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/calculate/{hospital_id}/{year_month}": {
+      "post": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Calculate Analytics For Month",
+        "description": "Calculate analytics for a specific hospital and month.\nOnly hospital admins and super admins can trigger.",
+        "operationId": "calculate_analytics_for_month_api_v1_analytics_calculate__hospital_id___year_month__post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hospital_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Hospital Id"
+            }
+          },
+          {
+            "name": "year_month",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Year Month"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/recalculate-monthly/{year_month}": {
+      "post": {
+        "tags": [
+          "analytics"
+        ],
+        "summary": "Recalculate Monthly Analytics",
+        "description": "Recalculate monthly analytics for a specific month.\nThis should be called automatically via cron job, but available for manual trigger.\nOnly super admins can access.",
+        "operationId": "recalculate_monthly_analytics_api_v1_analytics_recalculate_monthly__year_month__post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "year_month",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Year Month"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/audit/override": {
+      "post": {
+        "tags": [
+          "audit"
+        ],
+        "summary": "Log Override",
+        "description": "Log an override action when clinician deviates from recommendation.\nRequires reason for audit trail.",
+        "operationId": "log_override_api_v1_audit_override_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverrideRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/audit/logs/{encounter_id}": {
+      "get": {
+        "tags": [
+          "audit"
+        ],
+        "summary": "Get Audit Logs",
+        "description": "Get audit logs for a specific encounter.",
+        "operationId": "get_audit_logs_api_v1_audit_logs__encounter_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "encounter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Encounter Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditLogResponse"
+                  },
+                  "title": "Response Get Audit Logs Api V1 Audit Logs  Encounter Id  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cors-test": {
+      "get": {
+        "tags": [
+          "test"
+        ],
+        "summary": "Cors Test",
+        "operationId": "cors_test_api_v1_cors_test_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/test-roi-summary": {
+      "get": {
+        "tags": [
+          "test"
+        ],
+        "summary": "Test Roi Summary",
+        "description": "Test endpoint without authentication",
+        "operationId": "test_roi_summary_api_v1_test_roi_summary_get",
+        "parameters": [
+          {
+            "name": "months",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 6,
+              "title": "Months"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pdf/encounter/{encounter_id}/pdf": {
+      "get": {
+        "tags": [
+          "pdf"
+        ],
+        "summary": "Export Encounter Pdf",
+        "description": "Export encounter recommendations as PDF.",
+        "operationId": "export_encounter_pdf_api_v1_pdf_encounter__encounter_id__pdf_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "encounter_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Encounter Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pdf/{recommendation_id}/pdf": {
+      "get": {
+        "tags": [
+          "pdf"
+        ],
+        "summary": "Export Recommendation Pdf",
+        "description": "Export recommendation as PDF with language support (en/bn).",
+        "operationId": "export_recommendation_pdf_api_v1_pdf__recommendation_id__pdf_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "recommendation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Recommendation Id"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "en",
+              "title": "Language"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/admin/ai/evidence-summary": {
+      "get": {
+        "tags": [
+          "admin",
+          "admin"
+        ],
+        "summary": "Get Ai Evidence Summary",
+        "description": "AI-generated evidence summary - ADMIN ONLY, never in clinical UI.\n\nThis endpoint is strictly admin-only. AI features are never exposed\nto clinical users to maintain trust and regulatory compliance.",
+        "operationId": "get_ai_evidence_summary_api_v1_admin_admin_ai_evidence_summary_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "guideline_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Guideline Id"
+            }
+          },
+          {
+            "name": "topic",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Topic"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/admin/ai/status": {
+      "get": {
+        "tags": [
+          "admin",
+          "admin"
+        ],
+        "summary": "Get Ai Status",
+        "description": "Get AI service status - ADMIN ONLY.",
+        "operationId": "get_ai_status_api_v1_admin_admin_ai_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/thresholds/thresholds": {
+      "get": {
+        "tags": [
+          "admin-thresholds",
+          "admin"
+        ],
+        "summary": "Get Thresholds",
+        "description": "Get all hospital threshold configurations.",
+        "operationId": "get_thresholds_api_v1_admin_thresholds_thresholds_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "config_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Config Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ThresholdConfigResponse"
+                  },
+                  "title": "Response Get Thresholds Api V1 Admin Thresholds Thresholds Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "admin-thresholds",
+          "admin"
+        ],
+        "summary": "Create Threshold",
+        "description": "Create or update a threshold configuration.",
+        "operationId": "create_threshold_api_v1_admin_thresholds_thresholds_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ThresholdConfig"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThresholdConfigResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/thresholds/thresholds/{config_id}": {
+      "delete": {
+        "tags": [
+          "admin-thresholds",
+          "admin"
+        ],
+        "summary": "Delete Threshold",
+        "description": "Deactivate a threshold configuration.",
+        "operationId": "delete_threshold_api_v1_admin_thresholds_thresholds__config_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "config_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Config Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hospital-admin/users": {
+      "get": {
+        "tags": [
+          "hospital-admin"
+        ],
+        "summary": "Get Hospital Users",
+        "description": "Get all users in the hospital (hospital admin only).",
+        "operationId": "get_hospital_users_api_v1_hospital_admin_users_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/app__schemas__user__UserResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get Hospital Users Api V1 Hospital Admin Users Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "hospital-admin"
+        ],
+        "summary": "Create Hospital User",
+        "description": "Create a new user in the hospital (hospital admin only).",
+        "operationId": "create_hospital_user_api_v1_hospital_admin_users_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__schemas__user__UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__schemas__user__UserResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/hospital-admin/users/{user_id}/deactivate": {
+      "put": {
+        "tags": [
+          "hospital-admin"
+        ],
+        "summary": "Deactivate User",
+        "description": "Deactivate a user in the hospital (hospital admin only).",
+        "operationId": "deactivate_user_api_v1_hospital_admin_users__user_id__deactivate_put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/hospital-admin/users/{user_id}/activate": {
+      "put": {
+        "tags": [
+          "hospital-admin"
+        ],
+        "summary": "Activate User",
+        "description": "Activate a user in the hospital (hospital admin only).",
+        "operationId": "activate_user_api_v1_hospital_admin_users__user_id__activate_put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/super-admin/hospitals": {
+      "get": {
+        "tags": [
+          "super-admin",
+          "super-admin"
+        ],
+        "summary": "Get Hospitals",
+        "description": "Get all hospitals (super admin only)",
+        "operationId": "get_hospitals_api_v1_super_admin_hospitals_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/HospitalResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get Hospitals Api V1 Super Admin Hospitals Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "super-admin",
+          "super-admin"
+        ],
+        "summary": "Create Hospital",
+        "description": "Create a new hospital (super admin only)",
+        "operationId": "create_hospital_api_v1_super_admin_hospitals_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HospitalCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HospitalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/super-admin/hospitals/{hospital_id}/users": {
+      "get": {
+        "tags": [
+          "super-admin",
+          "super-admin"
+        ],
+        "summary": "Get Hospital Users",
+        "description": "Get all users in a hospital (super admin only)",
+        "operationId": "get_hospital_users_api_v1_super_admin_hospitals__hospital_id__users_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hospital_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Hospital Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/app__api__v1__super_admin__UserResponse"
+                  },
+                  "title": "Response Get Hospital Users Api V1 Super Admin Hospitals  Hospital Id  Users Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/super-admin/hospitals/{hospital_id}": {
+      "get": {
+        "tags": [
+          "super-admin",
+          "super-admin"
+        ],
+        "summary": "Get Hospital",
+        "description": "Get a specific hospital (super admin only)",
+        "operationId": "get_hospital_api_v1_super_admin_hospitals__hospital_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "hospital_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Hospital Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HospitalResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/super-admin/all-users": {
+      "get": {
+        "tags": [
+          "super-admin",
+          "super-admin"
+        ],
+        "summary": "Get All Users",
+        "description": "Get all users in the system (super admin only)",
+        "operationId": "get_all_users_api_v1_super_admin_all_users_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/app__api__v1__super_admin__UserResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get All Users Api V1 Super Admin All Users Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/super-admin/users": {
+      "post": {
+        "tags": [
+          "super-admin",
+          "super-admin"
+        ],
+        "summary": "Create User",
+        "description": "Create a new user (super admin only)",
+        "operationId": "create_user_api_v1_super_admin_users_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app__api__v1__super_admin__UserCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__api__v1__super_admin__UserResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/super-admin/system-stats": {
+      "get": {
+        "tags": [
+          "super-admin",
+          "super-admin"
+        ],
+        "summary": "Get System Stats",
+        "description": "Get system statistics (super admin only)",
+        "operationId": "get_system_stats_api_v1_super_admin_system_stats_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemStats"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AuditLogResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "encounter_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Encounter Id"
+          },
+          "recommendation_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recommendation Id"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "override_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Override Reason"
+          },
+          "override_component": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Override Component"
+          },
+          "rule_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Version"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "encounter_id",
+          "recommendation_id",
+          "action",
+          "override_reason",
+          "override_component",
+          "rule_version",
+          "created_at"
+        ],
+        "title": "AuditLogResponse"
+      },
+      "BloodProductCostCreate": {
+        "properties": {
+          "component_type": {
+            "type": "string",
+            "title": "Component Type",
+            "description": "Blood component type (RBC, FFP, Platelets, Cryo)"
+          },
+          "unit_cost_bdt": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Unit Cost Bdt",
+            "description": "Cost per unit in BDT"
+          },
+          "units_per_bag": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Units Per Bag",
+            "description": "Units per bag/container",
+            "default": 1
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "Whether this pricing is active",
+            "default": true
+          },
+          "hospital_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hospital Id",
+            "description": "Hospital ID (optional, uses current user's hospital)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "component_type",
+          "unit_cost_bdt"
+        ],
+        "title": "BloodProductCostCreate"
+      },
+      "BloodProductCostResponse": {
+        "properties": {
+          "component_type": {
+            "type": "string",
+            "title": "Component Type",
+            "description": "Blood component type (RBC, FFP, Platelets, Cryo)"
+          },
+          "unit_cost_bdt": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Unit Cost Bdt",
+            "description": "Cost per unit in BDT"
+          },
+          "units_per_bag": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Units Per Bag",
+            "description": "Units per bag/container",
+            "default": 1
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "Whether this pricing is active",
+            "default": true
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "hospital_id": {
+            "type": "integer",
+            "title": "Hospital Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "component_type",
+          "unit_cost_bdt",
+          "id",
+          "hospital_id",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "BloodProductCostResponse"
+      },
+      "Body_login_api_v1_auth_token_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "password"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grant Type"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_api_v1_auth_token_post"
+      },
+      "ComponentRecommendation": {
+        "properties": {
+          "component": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Component"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action",
+            "default": "recommend"
+          },
+          "dose_text": {
+            "type": "string",
+            "title": "Dose Text"
+          },
+          "units": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Units"
+          },
+          "volume_ml": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume Ml"
+          },
+          "expected_increment": {
+            "type": "string",
+            "title": "Expected Increment"
+          },
+          "recheck_plan": {
+            "type": "string",
+            "title": "Recheck Plan"
+          },
+          "why": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Why"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "references": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "References"
+          },
+          "rule_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Rule Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "component",
+          "dose_text",
+          "units",
+          "volume_ml",
+          "expected_increment",
+          "recheck_plan",
+          "why",
+          "warnings",
+          "references",
+          "rule_ids"
+        ],
+        "title": "ComponentRecommendation",
+        "description": "Single component recommendation"
+      },
+      "ComponentStatsResponse": {
+        "properties": {
+          "recommendations_count": {
+            "type": "integer",
+            "title": "Recommendations Count"
+          },
+          "recommended_units": {
+            "type": "number",
+            "title": "Recommended Units"
+          },
+          "actual_units": {
+            "type": "number",
+            "title": "Actual Units"
+          },
+          "overrides_count": {
+            "type": "integer",
+            "title": "Overrides Count"
+          },
+          "common_override_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Common Override Reasons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "recommendations_count",
+          "recommended_units",
+          "actual_units",
+          "overrides_count",
+          "common_override_reasons"
+        ],
+        "title": "ComponentStatsResponse"
+      },
+      "ComponentUsageResponse": {
+        "properties": {
+          "hospital_id": {
+            "type": "integer",
+            "title": "Hospital Id"
+          },
+          "period_start": {
+            "type": "string",
+            "format": "date",
+            "title": "Period Start"
+          },
+          "period_end": {
+            "type": "string",
+            "format": "date",
+            "title": "Period End"
+          },
+          "component_stats": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ComponentStatsResponse"
+            },
+            "type": "object",
+            "title": "Component Stats"
+          },
+          "total_recommendations": {
+            "type": "integer",
+            "title": "Total Recommendations"
+          },
+          "total_overrides": {
+            "type": "integer",
+            "title": "Total Overrides"
+          },
+          "override_rate": {
+            "type": "number",
+            "title": "Override Rate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hospital_id",
+          "period_start",
+          "period_end",
+          "component_stats",
+          "total_recommendations",
+          "total_overrides",
+          "override_rate"
+        ],
+        "title": "ComponentUsageResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HospitalCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address"
+          },
+          "city": {
+            "type": "string",
+            "title": "City"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country",
+            "default": "Bangladesh"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "HospitalCreate"
+      },
+      "HospitalROIResponse": {
+        "properties": {
+          "hospital_id": {
+            "type": "integer",
+            "title": "Hospital Id"
+          },
+          "period_months": {
+            "type": "integer",
+            "title": "Period Months"
+          },
+          "total_encounters": {
+            "type": "integer",
+            "title": "Total Encounters"
+          },
+          "total_recommendations": {
+            "type": "integer",
+            "title": "Total Recommendations"
+          },
+          "compliance_rate": {
+            "type": "number",
+            "title": "Compliance Rate"
+          },
+          "estimated_total_savings_bdt": {
+            "type": "number",
+            "title": "Estimated Total Savings Bdt"
+          },
+          "estimated_monthly_savings_bdt": {
+            "type": "number",
+            "title": "Estimated Monthly Savings Bdt"
+          },
+          "component_usage": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Component Usage"
+          },
+          "monthly_trends": {
+            "items": {
+              "$ref": "#/components/schemas/MonthlyTrendResponse"
+            },
+            "type": "array",
+            "title": "Monthly Trends"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hospital_id",
+          "period_months",
+          "total_encounters",
+          "total_recommendations",
+          "compliance_rate",
+          "estimated_total_savings_bdt",
+          "estimated_monthly_savings_bdt",
+          "component_usage",
+          "monthly_trends"
+        ],
+        "title": "HospitalROIResponse"
+      },
+      "HospitalResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address"
+          },
+          "city": {
+            "type": "string",
+            "title": "City"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "users_count": {
+            "type": "integer",
+            "title": "Users Count",
+            "default": 0
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "country",
+          "is_active"
+        ],
+        "title": "HospitalResponse"
+      },
+      "MonthlyTrendResponse": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "title": "Month"
+          },
+          "encounters": {
+            "type": "integer",
+            "title": "Encounters"
+          },
+          "recommendations": {
+            "type": "integer",
+            "title": "Recommendations"
+          },
+          "compliance_rate": {
+            "type": "number",
+            "title": "Compliance Rate"
+          },
+          "savings_bdt": {
+            "type": "number",
+            "title": "Savings Bdt"
+          }
+        },
+        "type": "object",
+        "required": [
+          "month",
+          "encounters",
+          "recommendations",
+          "compliance_rate",
+          "savings_bdt"
+        ],
+        "title": "MonthlyTrendResponse"
+      },
+      "OutcomeUpdate": {
+        "properties": {
+          "actual_transfusion_given": {
+            "type": "boolean",
+            "title": "Actual Transfusion Given"
+          },
+          "components_given": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Components Given"
+          },
+          "post_transfusion_hb": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Post Transfusion Hb"
+          },
+          "post_transfusion_platelets": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Post Transfusion Platelets"
+          }
+        },
+        "type": "object",
+        "required": [
+          "actual_transfusion_given"
+        ],
+        "title": "OutcomeUpdate",
+        "description": "Model for recording actual transfusion outcome"
+      },
+      "OverrideRequest": {
+        "properties": {
+          "recommendation_id": {
+            "type": "integer",
+            "title": "Recommendation Id"
+          },
+          "override_reason": {
+            "type": "string",
+            "title": "Override Reason"
+          },
+          "override_component": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Override Component"
+          }
+        },
+        "type": "object",
+        "required": [
+          "recommendation_id",
+          "override_reason"
+        ],
+        "title": "OverrideRequest"
+      },
+      "PatientInput": {
+        "properties": {
+          "age_years": {
+            "type": "number",
+            "title": "Age Years",
+            "description": "Patient age in years"
+          },
+          "age_months": {
+            "type": "number",
+            "title": "Age Months",
+            "description": "Patient age in months (for pediatrics)"
+          },
+          "sex": {
+            "type": "string",
+            "title": "Sex",
+            "description": "Patient sex (M, F, Other)"
+          },
+          "weight_kg": {
+            "type": "number",
+            "title": "Weight Kg",
+            "description": "Patient weight in kg"
+          },
+          "setting": {
+            "type": "string",
+            "title": "Setting",
+            "description": "Setting: icu, or, er, ward"
+          },
+          "active_bleeding": {
+            "type": "boolean",
+            "title": "Active Bleeding",
+            "description": "Active bleeding present",
+            "default": false
+          },
+          "hemodynamic_instability": {
+            "type": "boolean",
+            "title": "Hemodynamic Instability",
+            "description": "Hemodynamic instability present",
+            "default": false
+          },
+          "hb_gdl": {
+            "type": "number",
+            "title": "Hb Gdl",
+            "description": "Hemoglobin in g/dL"
+          },
+          "platelets_x109l": {
+            "type": "number",
+            "title": "Platelets X109L",
+            "description": "Platelets in ×10⁹/L"
+          },
+          "inr": {
+            "type": "number",
+            "title": "Inr",
+            "description": "INR"
+          },
+          "aptt_sec": {
+            "type": "number",
+            "title": "Aptt Sec",
+            "description": "aPTT in seconds"
+          },
+          "fibrinogen_mgdl": {
+            "type": "number",
+            "title": "Fibrinogen Mgdl",
+            "description": "Fibrinogen in mg/dL"
+          },
+          "history_flags": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "History Flags",
+            "description": "History flags"
+          },
+          "procedure_risk": {
+            "type": "string",
+            "title": "Procedure Risk",
+            "description": "Procedure risk: low, medium, high"
+          },
+          "procedure_timing_hours": {
+            "type": "number",
+            "title": "Procedure Timing Hours",
+            "description": "Procedure timing in hours"
+          },
+          "component_availability": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Component Availability"
+          },
+          "rbc_bag_size_ml": {
+            "type": "integer",
+            "title": "Rbc Bag Size Ml",
+            "description": "RBC bag size: 350 or 450 mL",
+            "default": 350
+          },
+          "leukoreduction_available": {
+            "type": "boolean",
+            "title": "Leukoreduction Available",
+            "description": "Leukoreduction available",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "age_years",
+          "sex",
+          "weight_kg",
+          "setting"
+        ],
+        "title": "PatientInput"
+      },
+      "RecommendationResponse": {
+        "properties": {
+          "components": {
+            "items": {
+              "$ref": "#/components/schemas/ComponentRecommendation"
+            },
+            "type": "array",
+            "title": "Components"
+          },
+          "rule_version": {
+            "type": "string",
+            "title": "Rule Version"
+          },
+          "overall_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Overall Warnings",
+            "default": []
+          },
+          "mtp_protocol": {
+            "type": "boolean",
+            "title": "Mtp Protocol",
+            "default": false
+          },
+          "encounter_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Encounter Id"
+          },
+          "recommendation_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Recommendation Ids",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "components",
+          "rule_version"
+        ],
+        "title": "RecommendationResponse",
+        "description": "Multi-component recommendation plan"
+      },
+      "SystemStats": {
+        "properties": {
+          "total_hospitals": {
+            "type": "integer",
+            "title": "Total Hospitals"
+          },
+          "total_users": {
+            "type": "integer",
+            "title": "Total Users"
+          },
+          "total_patient_encounters": {
+            "type": "integer",
+            "title": "Total Patient Encounters"
+          },
+          "total_recommendations": {
+            "type": "integer",
+            "title": "Total Recommendations"
+          },
+          "active_hospitals": {
+            "type": "integer",
+            "title": "Active Hospitals"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_hospitals",
+          "total_users",
+          "total_patient_encounters",
+          "total_recommendations",
+          "active_hospitals"
+        ],
+        "title": "SystemStats"
+      },
+      "ThresholdConfig": {
+        "properties": {
+          "config_key": {
+            "type": "string",
+            "title": "Config Key",
+            "description": "Configuration key (e.g., 'rbc_threshold_ward')"
+          },
+          "config_value": {
+            "title": "Config Value",
+            "description": "Configuration value"
+          },
+          "config_type": {
+            "type": "string",
+            "title": "Config Type",
+            "description": "Type of config",
+            "default": "threshold"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "config_key",
+          "config_value"
+        ],
+        "title": "ThresholdConfig"
+      },
+      "ThresholdConfigResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "config_key": {
+            "type": "string",
+            "title": "Config Key"
+          },
+          "config_value": {
+            "title": "Config Value"
+          },
+          "config_type": {
+            "type": "string",
+            "title": "Config Type"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "config_key",
+          "config_value",
+          "config_type",
+          "is_active",
+          "created_at"
+        ],
+        "title": "ThresholdConfigResponse"
+      },
+      "Token": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "token_type"
+        ],
+        "title": "Token"
+      },
+      "UserRole": {
+        "type": "string",
+        "enum": [
+          "doctor",
+          "admin",
+          "super_admin",
+          "hospital_admin"
+        ],
+        "title": "UserRole"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "app__api__v1__auth__UserCreate": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "role": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserRole"
+              }
+            ],
+            "default": "doctor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "full_name"
+        ],
+        "title": "UserCreate"
+      },
+      "app__api__v1__auth__UserResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "full_name",
+          "role",
+          "is_active"
+        ],
+        "title": "UserResponse"
+      },
+      "app__api__v1__super_admin__UserCreate": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "hospital_id": {
+            "type": "integer",
+            "title": "Hospital Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "full_name",
+          "role"
+        ],
+        "title": "UserCreate"
+      },
+      "app__api__v1__super_admin__UserResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "hospital_id": {
+            "type": "integer",
+            "title": "Hospital Id"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "full_name",
+          "role",
+          "is_active"
+        ],
+        "title": "UserResponse"
+      },
+      "app__schemas__user__UserCreate": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "default": "doctor"
+          },
+          "hospital_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hospital Id"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "UserCreate"
+      },
+      "app__schemas__user__UserResponse": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "full_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "default": "doctor"
+          },
+          "hospital_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hospital Id"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "last_login": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Login"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "id",
+          "is_active"
+        ],
+        "title": "UserResponse"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "type": "oauth2",
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/api/v1/auth/token"
+          }
+        }
+      }
+    }
+  }
+}

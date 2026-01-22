@@ -1,0 +1,1054 @@
+{
+  "project": "TransfusionIQ - Blood Transfusion CDS System",
+  "description": "Clinical Decision Support System with Analytics and Hospital Management",
+  "database": "PostgreSQL",
+  "tables": {
+    "alembic_version": {
+      "columns": [
+        {
+          "name": "version_num",
+          "type": "VARCHAR(32)",
+          "nullable": false,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "version_num"
+      ],
+      "foreign_keys": [],
+      "indexes": []
+    },
+    "analytics_monthly_summary": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('analytics_monthly_summary_id_seq'::regclass)"
+        },
+        {
+          "name": "hospital_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "summary_date",
+          "type": "DATE",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "total_encounters",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "total_recommendations",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "guideline_compliant",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "total_overrides",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "rbc_recommended",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "rbc_actual",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "platelets_recommended",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "platelets_actual",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "ffp_recommended",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "ffp_actual",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "cryo_recommended",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "cryo_actual",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "0"
+        },
+        {
+          "name": "estimated_savings_bdt",
+          "type": "DOUBLE PRECISION",
+          "nullable": false,
+          "default": "'0'::double precision"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "department",
+          "type": "VARCHAR(100)",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "hospital_id"
+          ],
+          "references": "hospitals(['id'])"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_analytics_hospital_date",
+          "columns": [
+            "hospital_id",
+            "summary_date"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_analytics_month_date",
+          "columns": [
+            "summary_date"
+          ],
+          "unique": false
+        },
+        {
+          "name": "uq_hospital_monthly_summary",
+          "columns": [
+            "hospital_id",
+            "summary_date"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "audit_logs": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('audit_logs_id_seq'::regclass)"
+        },
+        {
+          "name": "encounter_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "recommendation_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "action",
+          "type": "VARCHAR",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "override_reason",
+          "type": "TEXT",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "override_component",
+          "type": "VARCHAR",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "rule_version",
+          "type": "VARCHAR",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "additional_metadata",
+          "type": "JSON",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "now()"
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "encounter_id"
+          ],
+          "references": "patient_encounters(['id'])"
+        },
+        {
+          "columns": [
+            "recommendation_id"
+          ],
+          "references": "recommendations(['id'])"
+        },
+        {
+          "columns": [
+            "user_id"
+          ],
+          "references": "users(['id'])"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_audit_logs_created_at",
+          "columns": [
+            "created_at"
+          ],
+          "unique": false
+        },
+        {
+          "name": "ix_audit_logs_id",
+          "columns": [
+            "id"
+          ],
+          "unique": false
+        }
+      ]
+    },
+    "blood_product_cost": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('blood_product_cost_id_seq'::regclass)"
+        },
+        {
+          "name": "hospital_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "component_type",
+          "type": "VARCHAR(50)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "unit_cost_bdt",
+          "type": "DOUBLE PRECISION",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "units_per_bag",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "1"
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": "true"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": false,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": false,
+          "default": "now()"
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "hospital_id"
+          ],
+          "references": "hospitals(['id'])"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_blood_product_active",
+          "columns": [
+            "hospital_id",
+            "component_type"
+          ],
+          "unique": false
+        },
+        {
+          "name": "uq_hospital_component",
+          "columns": [
+            "hospital_id",
+            "component_type"
+          ],
+          "unique": true
+        }
+      ]
+    },
+    "blood_product_defaults": {
+      "columns": [
+        {
+          "name": "component_type",
+          "type": "VARCHAR(50)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "default_cost_bdt",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "typical_units_per_bag",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "component_type"
+      ],
+      "foreign_keys": [],
+      "indexes": []
+    },
+    "hospital_configs": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('hospital_configs_id_seq'::regclass)"
+        },
+        {
+          "name": "hospital_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "config_type",
+          "type": "VARCHAR(50)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "config_key",
+          "type": "VARCHAR(100)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "config_value",
+          "type": "JSON",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_by",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "created_by"
+          ],
+          "references": "users(['id'])"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_hospital_configs_id",
+          "columns": [
+            "id"
+          ],
+          "unique": false
+        }
+      ]
+    },
+    "hospitals": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('hospitals_id_seq'::regclass)"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "address",
+          "type": "VARCHAR",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "city",
+          "type": "VARCHAR",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "country",
+          "type": "VARCHAR",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_by",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [],
+      "indexes": [
+        {
+          "name": "hospitals_name_key",
+          "columns": [
+            "name"
+          ],
+          "unique": true
+        },
+        {
+          "name": "ix_hospitals_id",
+          "columns": [
+            "id"
+          ],
+          "unique": false
+        }
+      ]
+    },
+    "patient_encounters": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('patient_encounters_id_seq'::regclass)"
+        },
+        {
+          "name": "age_years",
+          "type": "DOUBLE PRECISION",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "age_months",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "sex",
+          "type": "VARCHAR",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "weight_kg",
+          "type": "DOUBLE PRECISION",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "setting",
+          "type": "VARCHAR(4)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "active_bleeding",
+          "type": "BOOLEAN",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "hemodynamic_instability",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "hb_gdl",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "platelets_x109l",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "inr",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "aptt_sec",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fibrinogen_mgdl",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "history_flags",
+          "type": "JSON",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "procedure_risk",
+          "type": "VARCHAR",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "procedure_timing_hours",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "component_availability",
+          "type": "JSON",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "rbc_bag_size_ml",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "leukoreduction_available",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "pseudonymized_id",
+          "type": "VARCHAR",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "is_pseudonymized",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_by",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "now()"
+        },
+        {
+          "name": "hospital_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "department",
+          "type": "VARCHAR(100)",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "created_by"
+          ],
+          "references": "users(['id'])"
+        },
+        {
+          "columns": [
+            "hospital_id"
+          ],
+          "references": "hospitals(['id'])"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_patient_encounters_id",
+          "columns": [
+            "id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "ix_patient_encounters_pseudonymized_id",
+          "columns": [
+            "pseudonymized_id"
+          ],
+          "unique": false
+        }
+      ]
+    },
+    "recommendations": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('recommendations_id_seq'::regclass)"
+        },
+        {
+          "name": "encounter_id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "component",
+          "type": "VARCHAR",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "dose_text",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "units",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "volume_ml",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "expected_increment",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "recheck_plan",
+          "type": "TEXT",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "why",
+          "type": "JSON",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "warnings",
+          "type": "JSON",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "references",
+          "type": "JSON",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "rule_ids",
+          "type": "JSON",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "rule_version",
+          "type": "VARCHAR",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "now()"
+        },
+        {
+          "name": "actual_transfusion_given",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "components_given",
+          "type": "JSON",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "post_transfusion_hb",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "post_transfusion_platelets",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "outcome_recorded_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "outcome_recorded_by",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "estimated_cost_bdt",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "actual_cost_bdt",
+          "type": "DOUBLE PRECISION",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "encounter_id"
+          ],
+          "references": "patient_encounters(['id'])"
+        },
+        {
+          "columns": [
+            "outcome_recorded_by"
+          ],
+          "references": "users(['id'])"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "idx_recommendations_encounter",
+          "columns": [
+            "encounter_id"
+          ],
+          "unique": false
+        },
+        {
+          "name": "idx_recommendations_with_outcomes",
+          "columns": [
+            "encounter_id",
+            "created_at"
+          ],
+          "unique": false
+        },
+        {
+          "name": "ix_recommendations_component",
+          "columns": [
+            "component"
+          ],
+          "unique": false
+        },
+        {
+          "name": "ix_recommendations_created_at",
+          "columns": [
+            "created_at"
+          ],
+          "unique": false
+        },
+        {
+          "name": "ix_recommendations_id",
+          "columns": [
+            "id"
+          ],
+          "unique": false
+        }
+      ]
+    },
+    "users": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "nextval('users_id_seq'::regclass)"
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "hashed_password",
+          "type": "VARCHAR",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "full_name",
+          "type": "VARCHAR",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "role",
+          "type": "VARCHAR(14)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "hospital_id",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": "now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "last_login",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "INTEGER",
+          "nullable": false,
+          "default": "1"
+        },
+        {
+          "name": "created_by",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "updated_by",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "deleted_at",
+          "type": "TIMESTAMP",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "deleted_by",
+          "type": "INTEGER",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "created_by"
+          ],
+          "references": "users(['id'])"
+        },
+        {
+          "columns": [
+            "deleted_by"
+          ],
+          "references": "users(['id'])"
+        },
+        {
+          "columns": [
+            "updated_by"
+          ],
+          "references": "users(['id'])"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "ix_users_email",
+          "columns": [
+            "email"
+          ],
+          "unique": true
+        },
+        {
+          "name": "ix_users_id",
+          "columns": [
+            "id"
+          ],
+          "unique": false
+        }
+      ]
+    }
+  }
+}

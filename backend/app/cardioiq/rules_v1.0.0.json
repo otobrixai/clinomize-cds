@@ -1,0 +1,129 @@
+{
+  "engine_meta": {
+    "engine_name": "CardioIQ CDS Engine",
+    "version": "1.0.0",
+    "country": "Bangladesh",
+    "clinical_domain": "Cardiology",
+    "advisory_only": true,
+    "last_updated": "2026-01-20",
+    "guideline_sources": [
+      "ESC",
+      "ACC/AHA",
+      "WHO_SEARO",
+      "Local Expert Consensus"
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "ACS_STEMI_001",
+      "priority": 100,
+      "module": "ACS",
+      "conditions": [
+        { "field": "ecg.st_elevation", "operator": "==", "value": true },
+        { "field": "presentation.chest_pain", "operator": "==", "value": true }
+      ],
+      "actions": [
+        {
+          "type": "set_diagnosis",
+          "value": "STEMI (Guideline-Aligned Clinical Category)"
+        },
+        {
+          "type": "recommend_level_of_care",
+          "value": "CCU"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Assess for immediate reperfusion strategy (Primary PCI vs Thrombolysis)"
+        },
+        {
+          "type": "flag_transfer",
+          "condition": "context.hospital_capability.has_cath_lab == false",
+          "value": "Urgent transfer to PCI-capable center if transport time < 120min"
+        }
+      ],
+      "rationale": "ST elevation with ischemic symptoms meets STEMI criteria.",
+      "guideline_reference": ["ESC ACS 2023"],
+      "confidence_level": "high"
+    },
+    {
+      "rule_id": "CP_RULEOUT_001",
+      "priority": 40,
+      "module": "ChestPain",
+      "conditions": [
+        { "field": "derived.heart_score.total", "operator": "<=", "value": 3 },
+        { "field": "labs.troponin.positive", "operator": "==", "value": false },
+        { "field": "ecg.st_elevation", "operator": "==", "value": false },
+        { "field": "ecg.st_depression", "operator": "==", "value": false },
+        { "field": "ecg.t_wave_inversion", "operator": "==", "value": false }
+      ],
+      "actions": [
+        {
+          "type": "recommend_action",
+          "value": "Consider safe discharge with follow-up"
+        },
+        {
+          "type": "recommend_level_of_care",
+          "value": "ER"
+        },
+        {
+          "type": "cost_impact",
+          "value": "Potentially avoidable admission"
+        },
+        {
+            "type": "set_diagnosis",
+            "value": "Low Risk Chest Pain"
+        }
+      ],
+      "rationale": "Low HEART score (<=3) with negative troponin and non-ischemic ECG indicates low short-term risk of MACE.",
+      "guideline_reference": ["ACC Chest Pain Guideline 2021"],
+      "confidence_level": "moderate"
+    },
+    {
+      "rule_id": "MED_QT_001",
+      "priority": 60,
+      "module": "MedicationSafety",
+      "conditions": [
+        { "field": "derived.qt_risk", "operator": "==", "value": true }
+      ],
+      "actions": [
+        {
+          "type": "safety_warning",
+          "value": "Increased risk of QT prolongation"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Review QT-prolonging medications and electrolytes"
+        }
+      ],
+      "rationale": "Hypokalemia or QT-prolonging drugs increase arrhythmia risk.",
+      "guideline_reference": ["ESC Arrhythmia Safety"],
+      "confidence_level": "high"
+    },
+    {
+        "rule_id": "ACS_NSTEMI_001",
+        "priority": 90,
+        "module": "ACS",
+        "conditions": [
+            { "field": "ecg.st_elevation", "operator": "==", "value": false },
+            { "field": "labs.troponin.positive", "operator": "==", "value": true }
+        ],
+        "actions": [
+            {
+                "type": "set_diagnosis",
+                "value": "NSTEMI (Guideline-Aligned Clinical Category)"
+            },
+            {
+                "type": "recommend_level_of_care",
+                "value": "CCU"
+            },
+            {
+                "type": "recommend_action",
+                "value": "Start anti-ischemic therapy and risk stratify for invasive strategy"
+            }
+        ],
+        "rationale": "Positive troponin without ST elevation indicates NSTEMI.",
+        "guideline_reference": ["ESC ACS 2023"],
+        "confidence_level": "high"
+    }
+  ]
+}

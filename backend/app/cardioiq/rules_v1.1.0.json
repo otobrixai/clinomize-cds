@@ -1,0 +1,415 @@
+{
+  "engine_meta": {
+    "engine_name": "CardioIQ CDS Engine",
+    "version": "1.1.0",
+    "country": "Bangladesh",
+    "clinical_domain": "Cardiology",
+    "advisory_only": true,
+    "last_updated": "2026-01-20",
+    "guideline_sources": [
+      "ESC ACS 2023",
+      "ACC/AHA Chest Pain 2021",
+      "WHO SEARO",
+      "Bangladesh Local Expert Consensus"
+    ],
+    "legal_disclaimer": "Decision Support Only - Not Prescriptive. Final clinical decision rests with treating physician."
+  },
+  "rule_hierarchy": {
+    "description": "Rules are evaluated in priority order. Higher priority always wins conflicts.",
+    "precedence": [
+      "ECG ischemia (ST changes)",
+      "Troponin trend",
+      "Hemodynamic instability",
+      "Risk scores (HEART, GRACE)",
+      "Clinical judgment overrides"
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "HEMODYNAMIC_INSTABILITY_001",
+      "priority": 105,
+      "module": "Emergency",
+      "override_priority": 105,
+      "conditions": [
+        { "field": "vitals.sbp", "operator": "<=", "value": 100 }
+      ],
+      "actions": [
+        {
+          "type": "recommend_level_of_care",
+          "value": "ICU"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Hemodynamic monitoring and support required"
+        },
+        {
+          "type": "safety_warning",
+          "value": "Hypotension detected - ICU-level care recommended"
+        }
+      ],
+      "rationale": "Hypotension (SBP <100) indicates hemodynamic instability requiring ICU-level monitoring.",
+      "guideline": "ESC ACS 2023 - High-Risk Features",
+      "confidence": "high",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "HEMODYNAMIC_SYNCOPE_002",
+      "priority": 104,
+      "module": "Emergency",
+      "override_priority": 104,
+      "conditions": [
+        { "field": "presentation.syncope", "operator": "==", "value": true },
+        { "field": "presentation.chest_pain", "operator": "==", "value": true }
+      ],
+      "actions": [
+        {
+          "type": "recommend_level_of_care",
+          "value": "ICU"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Urgent evaluation for cardiogenic shock or arrhythmia"
+        },
+        {
+          "type": "safety_warning",
+          "value": "Syncope with chest pain - high-risk presentation"
+        }
+      ],
+      "rationale": "Syncope in context of chest pain suggests severe hemodynamic compromise or arrhythmia.",
+      "guideline": "ESC ACS 2023 - High-Risk Features",
+      "confidence": "high",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "ACS_STEMI_001",
+      "priority": 100,
+      "module": "ACS",
+      "override_priority": 100,
+      "conditions": [
+        { "field": "ecg.st_elevation", "operator": "==", "value": true },
+        { "field": "presentation.chest_pain", "operator": "==", "value": true }
+      ],
+      "actions": [
+        {
+          "type": "set_diagnosis",
+          "value": "STEMI (Guideline-Aligned Clinical Category)"
+        },
+        {
+          "type": "recommend_level_of_care",
+          "value": "CCU"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Assess for immediate reperfusion strategy (Primary PCI vs Thrombolysis)"
+        },
+        {
+          "type": "flag_transfer",
+          "condition": "context.hospital_capability.has_cath_lab == false",
+          "value": "Urgent transfer to PCI-capable center if transport time < 120min"
+        }
+      ],
+      "rationale": "ST elevation with ischemic symptoms meets STEMI criteria.",
+      "guideline": "ESC ACS 2023",
+      "confidence": "high",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "ACS_NSTEMI_001",
+      "priority": 95,
+      "module": "ACS",
+      "override_priority": 95,
+      "conditions": [
+        { "field": "ecg.st_elevation", "operator": "==", "value": false },
+        { "field": "labs.troponin.positive", "operator": "==", "value": true }
+      ],
+      "actions": [
+        {
+          "type": "set_diagnosis",
+          "value": "NSTEMI (Guideline-Aligned Clinical Category)"
+        },
+        {
+          "type": "recommend_level_of_care",
+          "value": "CCU"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Start anti-ischemic therapy and risk stratify for invasive strategy"
+        }
+      ],
+      "rationale": "Positive troponin without ST elevation indicates NSTEMI.",
+      "guideline": "ESC ACS 2023",
+      "confidence": "high",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "ACS_NSTEMI_EQUIVOCAL_002",
+      "priority": 93,
+      "module": "ACS",
+      "override_priority": 93,
+      "conditions": [
+        { "field": "ecg.st_depression", "operator": "==", "value": true },
+        { "field": "labs.troponin_status", "operator": "==", "value": "pending" }
+      ],
+      "actions": [
+        {
+          "type": "set_diagnosis",
+          "value": "Possible ACS - Troponin Pending"
+        },
+        {
+          "type": "recommend_level_of_care",
+          "value": "CCU"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Admit for serial troponin monitoring. Repeat in 3-6 hours."
+        },
+        {
+          "type": "safety_warning",
+          "value": "ST depression present - do not discharge until troponin results available"
+        }
+      ],
+      "rationale": "ST depression with pending troponin requires observation for evolving NSTEMI.",
+      "guideline": "ESC ACS 2023",
+      "confidence": "high",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "ACS_ELDERLY_ATYPICAL_003",
+      "priority": 92,
+      "module": "ACS",
+      "override_priority": 92,
+      "conditions": [
+        { "field": "patient.age", "operator": ">=", "value": 65 },
+        { "field": "presentation.dyspnea", "operator": "==", "value": true },
+        { "field": "presentation.chest_pain_type", "operator": "==", "value": "atypical" }
+      ],
+      "actions": [
+        {
+          "type": "set_diagnosis",
+          "value": "Atypical ACS Presentation (Elderly)"
+        },
+        {
+          "type": "recommend_level_of_care",
+          "value": "Ward"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Rule out ACS with troponin and ECG. Consider atypical presentations in elderly."
+        },
+        {
+          "type": "safety_warning",
+          "value": "Elderly patients may present atypically - maintain high index of suspicion"
+        }
+      ],
+      "rationale": "Elderly patients often present with dyspnea or epigastric pain rather than typical chest pain.",
+      "guideline": "ACC/AHA Geriatric ACS Guidelines",
+      "confidence": "moderate",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "ACS_RENAL_TROPONIN_004",
+      "priority": 91,
+      "module": "ACS",
+      "override_priority": 91,
+      "conditions": [
+        { "field": "labs.troponin.positive", "operator": "==", "value": true },
+        { "field": "labs.creatinine", "operator": ">=", "value": 2.0 },
+        { "field": "ecg.st_elevation", "operator": "==", "value": false }
+      ],
+      "actions": [
+        {
+          "type": "set_diagnosis",
+          "value": "Elevated Troponin with Renal Dysfunction"
+        },
+        {
+          "type": "recommend_level_of_care",
+          "value": "CCU"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Correlate with clinical presentation and ECG. Consider serial troponins and cardiology consult."
+        },
+        {
+          "type": "safety_warning",
+          "value": "Chronic kidney disease can cause baseline troponin elevation - assess trend and clinical context"
+        }
+      ],
+      "rationale": "CKD patients have chronically elevated troponin. Trend and clinical correlation required.",
+      "guideline": "ESC CKD-ACS Guidelines",
+      "confidence": "moderate",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "ACS_PRIOR_MI_CABG_005",
+      "priority": 89,
+      "module": "ACS",
+      "override_priority": 89,
+      "conditions": [
+        { "field": "history.cad", "operator": "==", "value": true },
+        { "field": "presentation.chest_pain", "operator": "==", "value": true },
+        { "field": "labs.troponin.positive", "operator": "==", "value": false }
+      ],
+      "actions": [
+        {
+          "type": "set_diagnosis",
+          "value": "Chest Pain with CAD History - Troponin Negative"
+        },
+        {
+          "type": "recommend_level_of_care",
+          "value": "Ward"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Observe and repeat troponin. Consider stress testing if low risk."
+        },
+        {
+          "type": "safety_warning",
+          "value": "Prior CAD increases risk - do not discharge without serial troponins"
+        }
+      ],
+      "rationale": "Prior MI/CABG patients require lower threshold for admission despite negative initial troponin.",
+      "guideline": "ESC Secondary Prevention Guidelines",
+      "confidence": "moderate",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "ACS_FEMALE_RISK_006",
+      "priority": 88,
+      "module": "ACS",
+      "override_priority": 88,
+      "conditions": [
+        { "field": "patient.sex", "operator": "==", "value": "female" },
+        { "field": "patient.age", "operator": ">=", "value": 55 },
+        { "field": "presentation.chest_pain_type", "operator": "==", "value": "atypical" }
+      ],
+      "actions": [
+        {
+          "type": "recommend_action",
+          "value": "Consider ACS despite atypical presentation. Women often present differently."
+        },
+        {
+          "type": "safety_warning",
+          "value": "Female patients may have atypical ACS presentations - maintain clinical vigilance"
+        }
+      ],
+      "rationale": "Women are more likely to present with atypical symptoms (nausea, fatigue, dyspnea).",
+      "guideline": "ACC Women and Heart Disease Guidelines",
+      "confidence": "moderate",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "ACS_TROPONIN_UNAVAILABLE_007",
+      "priority": 85,
+      "module": "ACS",
+      "override_priority": 85,
+      "conditions": [
+        { "field": "labs.troponin_status", "operator": "==", "value": "unavailable" },
+        { "field": "presentation.chest_pain", "operator": "==", "value": true }
+      ],
+      "actions": [
+        {
+          "type": "set_diagnosis",
+          "value": "Chest Pain - Troponin Unavailable (Clinical Judgment Required)"
+        },
+        {
+          "type": "recommend_level_of_care",
+          "value": "Ward"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Base decision on ECG, clinical presentation, and risk factors. Consider transfer if high suspicion."
+        },
+        {
+          "type": "safety_warning",
+          "value": "No troponin available - rely on clinical judgment and ECG findings"
+        }
+      ],
+      "rationale": "In facilities without troponin, clinical assessment and ECG are primary tools.",
+      "guideline": "WHO SEARO Resource-Limited Settings",
+      "confidence": "low",
+      "legal_note": "Decision support only - clinical judgment critical"
+    },
+    {
+      "rule_id": "ACS_LOW_ECG_CONFIDENCE_008",
+      "priority": 70,
+      "module": "ACS",
+      "override_priority": 70,
+      "conditions": [
+        { "field": "ecg.confidence", "operator": "==", "value": "low" },
+        { "field": "presentation.chest_pain", "operator": "==", "value": true }
+      ],
+      "actions": [
+        {
+          "type": "recommend_action",
+          "value": "Repeat ECG or obtain expert interpretation. Do not rely solely on uncertain ECG."
+        },
+        {
+          "type": "safety_warning",
+          "value": "ECG interpretation uncertain - consider cardiology consult or repeat ECG"
+        }
+      ],
+      "rationale": "Low confidence ECG readings require expert review to avoid missed STEMI.",
+      "guideline": "Local Expert Consensus",
+      "confidence": "moderate",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "CP_RULEOUT_001",
+      "priority": 40,
+      "module": "ChestPain",
+      "override_priority": 40,
+      "conditions": [
+        { "field": "derived.heart_score.total", "operator": "<=", "value": 3 },
+        { "field": "labs.troponin.positive", "operator": "==", "value": false },
+        { "field": "ecg.st_elevation", "operator": "==", "value": false },
+        { "field": "ecg.st_depression", "operator": "==", "value": false },
+        { "field": "ecg.t_wave_inversion", "operator": "==", "value": false }
+      ],
+      "actions": [
+        {
+          "type": "recommend_action",
+          "value": "Consider safe discharge with follow-up"
+        },
+        {
+          "type": "recommend_level_of_care",
+          "value": "ER"
+        },
+        {
+          "type": "cost_impact",
+          "value": "Potentially avoidable admission"
+        },
+        {
+          "type": "set_diagnosis",
+          "value": "Low Risk Chest Pain"
+        }
+      ],
+      "rationale": "Low HEART score (<=3) with negative troponin and non-ischemic ECG indicates low short-term risk of MACE.",
+      "guideline": "ACC Chest Pain Guideline 2021",
+      "confidence": "moderate",
+      "legal_note": "Decision support only"
+    },
+    {
+      "rule_id": "MED_QT_001",
+      "priority": 60,
+      "module": "MedicationSafety",
+      "override_priority": 60,
+      "conditions": [
+        { "field": "derived.qt_risk", "operator": "==", "value": true }
+      ],
+      "actions": [
+        {
+          "type": "safety_warning",
+          "value": "Increased risk of QT prolongation"
+        },
+        {
+          "type": "recommend_action",
+          "value": "Review QT-prolonging medications and electrolytes"
+        }
+      ],
+      "rationale": "Hypokalemia or QT-prolonging drugs increase arrhythmia risk.",
+      "guideline": "ESC Arrhythmia Safety",
+      "confidence": "high",
+      "legal_note": "Decision support only"
+    }
+  ]
+}

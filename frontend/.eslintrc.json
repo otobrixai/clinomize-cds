@@ -1,0 +1,29 @@
+{
+  "extends": [
+    "next/core-web-vitals"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "rules": {
+    "react/no-unescaped-entities": "off",
+    "@next/next/no-img-element": "warn",
+    "no-unused-vars": ["warn", { 
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_" 
+    }]
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    ".next/",
+    "out/",
+    "public/",
+    "*.config.js",
+    "*.config.ts",
+    "next-env.d.ts"    
+  ]
+}
