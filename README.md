@@ -34,3 +34,11 @@ Please refer to the detailed setup instructions in the respective directories:
 
 - **Frontend**: Deployed on Vercel (https://clinomize.vercel.app)
 - **Backend**: Deployed on Vercel (https://clinomize-api.vercel.app)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For questions or support, please contact [support@otobrix.ai](mailto:support@otobrix.ai).
