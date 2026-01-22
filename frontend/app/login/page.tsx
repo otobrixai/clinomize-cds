@@ -92,7 +92,7 @@ export default function LoginPage() {
                 placeholder="Email address"
               />
             </div>
-            <div>
+            <div className="relative">
               <input
                 id="password"
                 name="password"
