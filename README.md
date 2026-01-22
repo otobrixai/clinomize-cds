@@ -29,3 +29,8 @@ Please refer to the detailed setup instructions in the respective directories:
 - **CardioIQ**: Cardiac risk assessment and triage (Chest pain, ECG, Troponin analysis).
 - **TransfusionIQ**: Advanced blood product recommendation engine.
 - **Rules Engine**: Deterministic, evidence-based recommendations.
+
+## Deployment
+
+- **Frontend**: Deployed on Vercel (https://clinomize.vercel.app)
+- **Backend**: Deployed on Vercel (https://clinomize-api.vercel.app)
